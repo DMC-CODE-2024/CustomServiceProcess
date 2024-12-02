@@ -23,10 +23,10 @@ public class PropertyReader {
 
     public String getConfigPropValue(String key) throws IOException {
 
-        if (System.getenv("commonConfigurationFilePath") == null) {
-            prop = loadProperties(System.getenv("commonConfigurationFile"));
-        } else {
+        if (System.getenv("commonConfigurationFile") == null) {
             prop = loadProperties(System.getenv("commonConfigurationFilePath"));
+        } else {
+            prop = loadProperties(System.getenv("commonConfigurationFile"));
         }
         if (Objects.nonNull(prop)) {
             return prop.getProperty(key);
