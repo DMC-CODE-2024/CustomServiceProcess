@@ -31,7 +31,8 @@ public class CustomImeiPairProcess {
         insertInBlackListHis(conn, subQuery, remark, source);
         deleteFromBlackList(conn, subQuery, source);
         removeAutoFromBlackList(conn, subQuery, source);
-        deleteFromImeiPair(conn, " select imei from " + table + " ");
+      //  deleteFromImeiPair(conn, " select imei from " + table + " ");
+         deleteFromImeiPair(conn, " select imei from " + table + " where  created_on >= ( select IFNULL(value, '2000-01-01') from sys_param where tag ='" + lastRunTime + "' )  " );
         updateGdceDateTime(conn, lastRunTime);
 
     }
