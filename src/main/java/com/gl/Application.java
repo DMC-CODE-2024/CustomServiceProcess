@@ -11,7 +11,11 @@ import com.gl.P5Process.CustomImeiPairProcess;
 
 public class Application {
     public static void main(String[] args) {
-        CustomImeiPairProcess.p5(new MySQLConnection().getConnection());
+        try (var c = new MySQLConnection().getConnection()) {
+            CustomImeiPairProcess.p5(c);
+        } catch (Exception e) {  
+        }
+       // CustomImeiPairProcess.p5(new MySQLConnection().getConnection());
         System.exit(0);
     }
 }
