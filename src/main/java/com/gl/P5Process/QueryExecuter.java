@@ -2,13 +2,11 @@ package com.gl.P5Process;
 
 import com.gl.AlertAudit.AlertService;
 import com.gl.Application;
-import com.gl.Audit.ModulesAudit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.Statement;
-
 
 public class QueryExecuter {
     static Logger log = LogManager.getLogger(QueryExecuter.class);
@@ -16,24 +14,16 @@ public class QueryExecuter {
     public static int runQuery(Connection conn, String query) {
         log.info("Query : {} ", query);
         var a = 0;
-        int auditId = 0;
-        long startTime = System.currentTimeMillis();
-        try {
-            auditId = ModulesAudit.insertModuleAudit(conn, "customs_duty_module", "Process completed for customs_duty_module", Application.serverName);
-            try (Statement stmt = conn.createStatement()) {
-                a = stmt.executeUpdate(query);
-                log.info("Rows Affected :  {}", a);
-                ModulesAudit.updateModuleAudit(conn, 200, "SUCCESS", "", auditId, startTime, a, a);
-            }
+        try (Statement stmt = conn.createStatement()) {
+            a = stmt.executeUpdate(query);
+            log.info("Rows Affected :  {}", a);
+            Application.passcount += a;
         } catch (Exception e) {
             var lastMethodName = Thread.currentThread().getStackTrace()[2].getMethodName();
             log.error(lastMethodName + " : Unable to run query: " + e.getLocalizedMessage() + " [Query] :" + query);
-            new AlertService().raiseAnAlert("alert1607", e.getLocalizedMessage().replaceAll("'", " "), "RegisterIMEIUpdate ", 0, conn);
-            try {
-                ModulesAudit.updateModuleAudit(conn, 500, "FAILURE", e.getMessage(), auditId, startTime, a, a);
-            } catch (Exception ex) {
-                log.error("Error updating audit trail " + ex);
-            }
+            new AlertService().raiseAnAlert("alert1607", e.getLocalizedMessage().replaceAll("'", " "),
+                    "RegisterIMEIUpdate ", 0, conn);
+            Application.failcount++;
         }
         return a;
     }
